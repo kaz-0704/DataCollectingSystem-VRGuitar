@@ -23,7 +23,7 @@ public class VideoCaptureExample : MonoBehaviour
             return;
         }
 
-        if (Time.time > m_stopRecordingTimer)
+        if (Time.time > m_stopRecordingTimer && m_VideoCapture.IsRecording)
         {
             m_VideoCapture.StopRecordingAsync(OnStoppedRecordingVideo);
         }

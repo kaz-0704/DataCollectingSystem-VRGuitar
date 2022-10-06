@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEditor;
 using System.Linq;
 using UnityEngine.Windows.WebCam;
 
@@ -7,7 +8,7 @@ namespace Recording
 {
     public class VideoCapturing : MonoBehaviour
     {
-        static readonly float MaxRecordingTime = 5.0f;
+        static readonly float MaxRecordingTime = 8.0f;
 
         VideoCapture m_VideoCapture = null;
         float m_stopRecordingTimer = float.MaxValue;
@@ -15,17 +16,20 @@ namespace Recording
 
         public Metronome metronome;
 
+        public WebCam webCam;
+
         void Start()
         {
-            StartVideoCaptureTest();
+
         }
 
         void Update()
         {
-            //if ((m_VideoCapture == null || !m_VideoCapture.IsRecording) && Input.GetKeyDown(KeyCode.S))
-            //{
-            //    metronome.OnMetronome();
-            //}
+            if ((m_VideoCapture == null || !m_VideoCapture.IsRecording) && Input.GetKeyDown(KeyCode.S))
+            {
+                webCam.CameraOff();
+                metronome.OnMetronome();
+            }
 
             if (m_VideoCapture == null || !m_VideoCapture.IsRecording)
             {
@@ -39,10 +43,10 @@ namespace Recording
                 m_VideoCapture.StopRecordingAsync(OnStoppedRecordingVideo);
             }
 
-            if (Time.time > m_stopRecordingTimer && isRecording)
-            {
-                m_VideoCapture.StopRecordingAsync(OnStoppedRecordingVideo);
-            }
+            //if (Time.time > m_stopRecordingTimer && isRecording)
+            //{
+            //    m_VideoCapture.StopRecordingAsync(OnStoppedRecordingVideo);
+            //}
         }
 
         public void StartVideoCaptureTest()
@@ -114,4 +118,29 @@ namespace Recording
             m_VideoCapture.StopRecordingAsync(OnStoppedRecordingVideo);
         }
     }
+
+//#if UNITY_EDITOR
+//    [CustomEditor(typeof(VideoCapturing))]
+
+//    public class RecordingEditor : Editor
+//    {
+//        VideoCapturing videoCapturing;
+//        public override void OnInspectorGUI()
+//        {
+//            RecordingEditor recordingEditor = target as RecordingEditor;
+
+//            using(new EditorGUI.DisabledGroupScope(!Application.isPlaying))
+//            {
+//                if (GUILayout.Button("Start")) {
+//                    videoCapturing.metronome.OnMetronome(); 
+//                }
+//                if (GUILayout.Button("Stop")) {
+//                    videoCapturing.metronome.OffMetronome();
+//                    videoCapturing.StopVideoCapture();
+//                }
+//            }
+//            base.OnInspectorGUI();
+//        }
+//    }
+//#endif
 }
