@@ -1,1 +1,1 @@
-# DataCollectingSystem-VRGuitar
+# Data Collecting System for the research of VRGuitar
