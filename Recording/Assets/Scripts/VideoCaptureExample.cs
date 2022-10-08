@@ -9,6 +9,7 @@ public class VideoCaptureExample : MonoBehaviour
 
     VideoCapture m_VideoCapture = null;
     float m_stopRecordingTimer = float.MaxValue;
+    private bool isRecording = false;
 
     // Use this for initialization
     void Start()
@@ -23,7 +24,7 @@ public class VideoCaptureExample : MonoBehaviour
             return;
         }
 
-        if (Time.time > m_stopRecordingTimer && m_VideoCapture.IsRecording)
+        if (Time.time > m_stopRecordingTimer && isRecording)
         {
             m_VideoCapture.StopRecordingAsync(OnStoppedRecordingVideo);
         }
@@ -31,6 +32,7 @@ public class VideoCaptureExample : MonoBehaviour
 
     void StartVideoCaptureTest()
     {
+        isRecording = true;
         Resolution cameraResolution = VideoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
         Debug.Log(cameraResolution);
 
@@ -52,7 +54,7 @@ public class VideoCaptureExample : MonoBehaviour
                 cameraParameters.pixelFormat = CapturePixelFormat.BGRA32;
 
                 m_VideoCapture.StartVideoModeAsync(cameraParameters,
-                    VideoCapture.AudioState.ApplicationAndMicAudio,
+                    VideoCapture.AudioState.MicAudio,
                     OnStartedVideoCaptureMode);
             }
             else
@@ -67,7 +69,7 @@ public class VideoCaptureExample : MonoBehaviour
         Debug.Log("Started Video Capture Mode!");
         string timeStamp = Time.time.ToString().Replace(".", "").Replace(":", "");
         string filename = string.Format("TestVideo_{0}.mp4", timeStamp);
-        string filepath = System.IO.Path.Combine("C:/Users/kazu3/Unity/RecordedVideo", filename);
+        string filepath = System.IO.Path.Combine("C:/Users/xr/Documents/Oiwa/RecordedVideo", filename);
         filepath = filepath.Replace("/", @"\");
         m_VideoCapture.StartRecordingAsync(filepath, OnStartedRecordingVideo);
     }
@@ -85,6 +87,7 @@ public class VideoCaptureExample : MonoBehaviour
 
     void OnStoppedRecordingVideo(VideoCapture.VideoCaptureResult result)
     {
+        isRecording = false;
         Debug.Log("Stopped Recording Video!");
         m_VideoCapture.StopVideoModeAsync(OnStoppedVideoCaptureMode);
     }

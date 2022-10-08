@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEditor;
+using System;
 using System.Linq;
 using UnityEngine.Windows.WebCam;
 
@@ -8,10 +9,7 @@ namespace Recording
 {
     public class VideoCapturing : MonoBehaviour
     {
-        static readonly float MaxRecordingTime = 8.0f;
-
         VideoCapture m_VideoCapture = null;
-        float m_stopRecordingTimer = float.MaxValue;
         public bool isRecording = false;
 
         public Metronome metronome;
@@ -39,14 +37,8 @@ namespace Recording
             if (m_VideoCapture.IsRecording && Input.GetKeyDown(KeyCode.D))
             {
                 metronome.OffMetronome();
-                //StopVideoCapture();
-                m_VideoCapture.StopRecordingAsync(OnStoppedRecordingVideo);
+                StopVideoCapture();
             }
-
-            //if (Time.time > m_stopRecordingTimer && isRecording)
-            //{
-            //    m_VideoCapture.StopRecordingAsync(OnStoppedRecordingVideo);
-            //}
         }
 
         public void StartVideoCaptureTest()
@@ -74,7 +66,7 @@ namespace Recording
                     cameraParameters.pixelFormat = CapturePixelFormat.BGRA32;
 
                     m_VideoCapture.StartVideoModeAsync(cameraParameters,
-                                                       VideoCapture.AudioState.ApplicationAndMicAudio,
+                                                       VideoCapture.AudioState.MicAudio,
                                                        OnStartedVideoCaptureMode);
                 }
                 else
@@ -87,24 +79,21 @@ namespace Recording
         void OnStartedVideoCaptureMode(VideoCapture.VideoCaptureResult result)
         {
             Debug.Log("Started Video Capture Mode!");
-            string timeStamp = Time.time.ToString().Replace(".", "").Replace(":", "");
+            string timeStamp = DateTime.Now.ToString().Replace("/", "").Replace(":", "");
             string filename = string.Format("TestVideo_{0}.mp4", timeStamp);
-            string filepath = System.IO.Path.Combine("C:/Users/kazu3/Unity/RecordedVideo", filename);
+            string filepath = System.IO.Path.Combine("C:/Users/xr/Documents/Oiwa/RecordedVideo", filename);
             filepath = filepath.Replace("/", @"\");
             m_VideoCapture.StartRecordingAsync(filepath, OnStartedRecordingVideo);
         }
 
         void OnStoppedVideoCaptureMode(VideoCapture.VideoCaptureResult result)
         {
-            isRecording = false;
             Debug.Log("Stopped Video Capture Mode!");
         }
 
         void OnStartedRecordingVideo(VideoCapture.VideoCaptureResult result)
         {
             Debug.Log("Started Recording Video!");
-            //Debug.Log("******************\n" + m_VideoCapture.IsRecording + "\n********************");
-            m_stopRecordingTimer = Time.time + MaxRecordingTime;
         }
 
         void OnStoppedRecordingVideo(VideoCapture.VideoCaptureResult result)
@@ -115,6 +104,7 @@ namespace Recording
 
         public void StopVideoCapture()
         {
+            isRecording = false;
             m_VideoCapture.StopRecordingAsync(OnStoppedRecordingVideo);
         }
     }

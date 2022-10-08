@@ -12,7 +12,7 @@ namespace Recording
         private MPTKEvent NotePlaying;
         public float bpm = 80f;
         private int preCount = 5;
-        private int recordingCount = 12;
+        private int recordingCount = 13;
 
         private float timeOut;
         private float timeElapsed = 0;
@@ -31,7 +31,6 @@ namespace Recording
         // Update is called once per frame
         void Update()
         {
-            //bpmText.text = "BPM: " + bpm;
             timeOut = 60 / bpm;
             if (metronome)
             {
@@ -48,14 +47,14 @@ namespace Recording
             else if (preCount <= count && count <= recordingCount) { countText.text = "Recording..."; }
             else { countText.text = ""; }
 
-            if (count >= preCount && !videoCapturing.isRecording)
+            if (count >= preCount-1 && !videoCapturing.isRecording)
             {
                 videoCapturing.StartVideoCaptureTest();
             }
 
             if (count >= recordingCount && videoCapturing.isRecording)
             {
-                count = 0;
+                count = 1;
                 videoCapturing.StopVideoCapture();
             }
         }
