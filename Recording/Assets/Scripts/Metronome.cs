@@ -17,15 +17,19 @@ namespace Recording
         private float timeOut;
         private float timeElapsed = 0;
         private int count = 0;
+        private int playCount = 0;
         private bool metronome = false;
 
         public VideoCapturing videoCapturing;
         private TextMeshProUGUI countText;
+        private TextMeshProUGUI playCountText;
         // Start is called before the first frame update
         void Start()
         {
             timeOut = 60 / bpm;
-            countText = GetComponentInChildren<TextMeshProUGUI>();
+            countText = GameObject.Find("Count").GetComponent<TextMeshProUGUI>();
+            playCountText = GameObject.Find("PlayCount").GetComponent<TextMeshProUGUI>();
+            playCountText.text = "PlayCount : 0";
         }
 
         // Update is called once per frame
@@ -47,7 +51,7 @@ namespace Recording
             else if (preCount <= count && count <= recordingCount) { countText.text = "Recording..."; }
             else { countText.text = ""; }
 
-            if (count >= preCount-1 && !videoCapturing.isRecording)
+            if (count >= preCount - 1 && !videoCapturing.isRecording)
             {
                 videoCapturing.StartVideoCaptureTest();
             }
@@ -55,6 +59,8 @@ namespace Recording
             if (count >= recordingCount && videoCapturing.isRecording)
             {
                 count = 1;
+                playCount += 1;
+                playCountText.text = "PlayCount : " + playCount;
                 videoCapturing.StopVideoCapture();
             }
         }
@@ -68,7 +74,7 @@ namespace Recording
                 Value = 72,
                 Channel = 1,
                 Duration = 200,
-                Velocity = 100,
+                Velocity = 10,
                 Delay = 0,
             };
             midiStreamPlayer.MPTK_PlayEvent(NotePlaying);

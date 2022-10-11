@@ -13,8 +13,14 @@ namespace Recording
         public bool isRecording = false;
 
         public Metronome metronome;
-
         public WebCam webCam;
+        public CSVWriter csvWriter;
+
+        public static readonly string[] pulldownList = { 
+            "Group1/植村くん", "Group1/長橋くん", "Group1/有瀧くん", "Group1/わきたくん" ,
+            "Group2",
+            "Group3"
+        };
 
         void Start()
         {
@@ -29,15 +35,11 @@ namespace Recording
                 metronome.OnMetronome();
             }
 
-            if (m_VideoCapture == null || !m_VideoCapture.IsRecording)
+            if (Input.GetKeyDown(KeyCode.D))
             {
-                return;
-            }
-
-            if (m_VideoCapture.IsRecording && Input.GetKeyDown(KeyCode.D))
-            {
+                if (isRecording) { StopVideoCapture(); }
                 metronome.OffMetronome();
-                StopVideoCapture();
+                csvWriter.EndWriting();
             }
         }
 
@@ -45,6 +47,8 @@ namespace Recording
         {
             m_VideoCapture = null;
             isRecording = true;
+            csvWriter.StartWriting();
+            //csvWriter.TestWrite();
             Resolution cameraResolution = VideoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
             Debug.Log(cameraResolution);
 
@@ -66,7 +70,7 @@ namespace Recording
                     cameraParameters.pixelFormat = CapturePixelFormat.BGRA32;
 
                     m_VideoCapture.StartVideoModeAsync(cameraParameters,
-                                                       VideoCapture.AudioState.MicAudio,
+                                                       VideoCapture.AudioState.ApplicationAndMicAudio,
                                                        OnStartedVideoCaptureMode);
                 }
                 else
@@ -79,11 +83,15 @@ namespace Recording
         void OnStartedVideoCaptureMode(VideoCapture.VideoCaptureResult result)
         {
             Debug.Log("Started Video Capture Mode!");
-            string timeStamp = DateTime.Now.ToString().Replace("/", "").Replace(":", "");
-            string filename = string.Format("TestVideo_{0}.mp4", timeStamp);
-            string filepath = System.IO.Path.Combine("C:/Users/xr/Documents/Oiwa/RecordedVideo", filename);
+            string timeStamp = DateTime.Now.ToString("yyyyMMdd-HHmmssfff");
+            string filename = string.Format("Video_{0}.mp4", timeStamp);
+            string filepath = System.IO.Path.Combine("C:/Users/xr/Documents/Oiwa/Recorded/RecordedVideo/OiwaKazuki", filename);
             filepath = filepath.Replace("/", @"\");
+            //isRecording = true;
+            //csvWriter.TestWrite();
+            //csvWriter.StartWriting();
             m_VideoCapture.StartRecordingAsync(filepath, OnStartedRecordingVideo);
+            
         }
 
         void OnStoppedVideoCaptureMode(VideoCapture.VideoCaptureResult result)
@@ -105,6 +113,7 @@ namespace Recording
         public void StopVideoCapture()
         {
             isRecording = false;
+            Debug.Log("m_VideoCapture: "+(m_VideoCapture == null ? "null" : "exist"));
             m_VideoCapture.StopRecordingAsync(OnStoppedRecordingVideo);
         }
     }
@@ -114,20 +123,31 @@ namespace Recording
 
 //    public class RecordingEditor : Editor
 //    {
-//        VideoCapturing videoCapturing;
+//        public VideoCapturing videoCapturing;
+//        public WebCam webCam;
+//        public CSVWriter csvWriter;
+
 //        public override void OnInspectorGUI()
 //        {
 //            RecordingEditor recordingEditor = target as RecordingEditor;
 
-//            using(new EditorGUI.DisabledGroupScope(!Application.isPlaying))
+//            using (new EditorGUI.DisabledGroupScope(!Application.isPlaying))
 //            {
-//                if (GUILayout.Button("Start")) {
-//                    videoCapturing.metronome.OnMetronome(); 
+//                if (GUILayout.Button("Start") && !videoCapturing.isRecording)
+//                {
+//                    webCam.CameraOff();
+//                    videoCapturing.metronome.OnMetronome();
 //                }
-//                if (GUILayout.Button("Stop")) {
+//                if (GUILayout.Button("Stop"))
+//                {
+//                    if (videoCapturing.isRecording) { videoCapturing.StopVideoCapture(); }
 //                    videoCapturing.metronome.OffMetronome();
-//                    videoCapturing.StopVideoCapture();
+//                    csvWriter.EndWriting();
 //                }
+//                //if (GUILayout.Button("ファイル Close"))
+//                //{
+//                //    csvWriter.EndWriting();
+//                //}
 //            }
 //            base.OnInspectorGUI();
 //        }
